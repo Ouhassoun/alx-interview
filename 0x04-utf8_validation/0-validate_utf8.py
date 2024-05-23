@@ -1,36 +1,26 @@
 #!/usr/bin/python3
+
 """
-a method that determined if a given data set
-represents a valid utf-8 encoding
+UTF-8 Validation
 """
-
-
-def binary(dec):
-    """the bits in an int"""
-    remainders = []
-    while True:
-        if int(dec / 2) == 0:
-            remainders.append(1)
-            break
-
-        remainders.append(int(dec % 2))
-        dec = dec / 2
-
-    string = ""
-    for item in remainders[::-1]:
-        string += str(item)
-
-    if len(string) < 8:
-        string = '0' + string
-
-    return string
 
 
 def validUTF8(data):
-    """checking is data utf8 valid"""
-    for item in data:
-        msb = int(binary(item)[0])
-        if msb != 0:
-            return False
-
-    return True
+    num_bytes = 0
+    for byte in data:
+        # Check if current byte is a start byte
+        if num_bytes == 0:
+            if (byte >> 5) == 0b110:
+                num_bytes = 1
+            elif (byte >> 4) == 0b1110:
+                num_bytes = 2
+            elif (byte >> 3) == 0b11110:
+                num_bytes = 3
+            elif (byte >> 7):
+                return False
+        else:
+            # Check if current byte is a continuation byte
+            if (byte >> 6) != 0b10:
+                return False
+            num_bytes -= 1
+    return num_bytes == 0
